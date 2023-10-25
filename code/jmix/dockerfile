@@ -1,0 +1,10 @@
+FROM gradle:8.4.0-jdk17 as Builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew -Pvaadin.productionMode=true bootJar
+
+FROM openjdk:17.0.2-jdk-slim
+RUN  apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=Builder /app/build/libs/jmix-0.0.1-SNAPSHOT.jar /app/app.jar
+CMD java -jar /app/app.jar
